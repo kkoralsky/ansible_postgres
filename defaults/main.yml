@@ -1,0 +1,10 @@
+---
+db_port: 5432
+db_priv: NOSUPERUSER
+
+postgres_ver: 9.5
+postgres_exts: []
+postgres_remotes: []
+postgres_install: yes
+postgres_listen: '*'
+postgis_ver: 2.3

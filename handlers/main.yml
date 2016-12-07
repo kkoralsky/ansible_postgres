@@ -1,0 +1,3 @@
+---
+- name: reload dbserver
+  service: name=postgresql state=reloaded

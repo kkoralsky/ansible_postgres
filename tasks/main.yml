@@ -1,0 +1,48 @@
+---
+- name: install psycopg2 to manage
+  apt: name=python-psycopg2
+  tags: bootstrap
+
+- block:
+  - name: install postgresql server
+    apt: name='postgresql-{{ postgres_ver }}'
+  - name: install contrib packages
+    apt: name='postgresql-{{ postgres_ver }}-contrib'
+    when: postgres_exts|length > 0
+  - name: install postgis
+    apt: name='postgresql-{{ postgres_ver }}-postgis-{{ postgis_ver }}'
+    when: 'postgis in {{ postgres_exts }}'
+  tags: install
+  when: postgres_install
+
+- name: ensure that config dir is created
+  file: path='/etc/postgresql/{{ postgres_ver }}/main' state=directory
+
+- name: configure postgres
+  template:
+    src: '{{ item }}'
+    dest: '/etc/postgresql/{{ postgres_ver }}/main/{{ item|replace(".j2", "") }}'
+    mode: 0640
+    owner: postgres
+    group: postgres
+  with_items:
+    - postgresql.conf.j2
+    - pg_hba.conf.j2
+    - pg_ident.conf.j2
+  notify: reload dbserver
+
+- meta: flush_handlers
+
+- name: add postgresql role
+  postgresql_user:
+    name: '{{ db_user }}'
+    password: '{{ db_pass }}'
+    port: '{{ db_port }}'
+    role_attr_flags: '{{ db_priv }}'
+
+- name: createdb
+  postgresql_db: name='{{ db_name }}' owner='{{ db_user }}' port='{{ db_port }}'
+
+- name: add extensions
+  postgresql_ext: name={{ item }} db='{{ db_name }}' port='{{ db_port }}' 
+  with_items: '{{ postgres_exts }}'
