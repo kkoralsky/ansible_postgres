@@ -33,6 +33,9 @@
 
 - meta: flush_handlers
 
+- name: ensure server is started
+  service: name=postgresql state=started
+
 - name: add postgresql role
   postgresql_user:
     name: '{{ db_user }}'
