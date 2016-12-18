@@ -7,11 +7,11 @@
   - name: install postgresql server
     apt: name='postgresql-{{ postgres_ver }}'
   - name: install contrib packages
-    apt: name='postgresql-{{ postgres_ver }}-contrib'
+    apt: name='postgresql-contrib-{{ postgres_ver }}'
     when: postgres_exts|length > 0
   - name: install postgis
     apt: name='postgresql-{{ postgres_ver }}-postgis-{{ postgis_ver }}'
-    when: 'postgis in {{ postgres_exts }}'
+    when: '"postgis" in {{ postgres_exts }}'
   tags: install
   when: postgres_install
 
