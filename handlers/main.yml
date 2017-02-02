@@ -1,3 +1,4 @@
 ---
 - name: reload dbserver
-  service: name=postgresql state=reloaded
+  service: name='postgresql@{{ postgres_ver }}-main' state=reloaded
+  become: true
