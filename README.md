@@ -6,33 +6,47 @@ A role for postgresql db server
 Requirements
 ------------
 
-Debian OS
+Debian or Ubuntu OS
 
 Role Variables
 --------------
 
-- `db_name`
-- `db_port`
-- `db_user`
-- `db_priv` - comma seperated role privilidges; default: `NOSUPERUSER` 
-- `postgis_ext` - if true, installs postgis extension
+- `postgres_dbs` - list of mappings with following keys:
+    - `name` database name
+    - `owner` role name owning given database
+    - `exts` list of postgres extensions available for db
+    - `privs` list of mappings:
+        - `roles` - comma seperated role names (string)
+        - `privs` - comma seperated database priviledges: `SELECT`, `UPDATE`, `INSERT` etc.
+- `postgres_roles` - list of mappings w/ following keys:
+    - `name` - role name
+    - `pass` - role password
+    - `privs` - comma sepecated role priviledges: `[NO]SUPERUSER`, `[NO]CREATEROLE`, `[NO]CREATEUSER`,
+        `[NO]CREATEDB`, `[NO]INHERIT`, `[NO]LOGIN`, `[NO]REPLICATION`,
+        `[NO]BYPASSRLS`
 - `postgres_ver` - postgresql server version; default: 9.5
-- `postgis_ver` - postgis version; default: 2.3
+- `postgres_exts` - postgres extensions to install: like similarity, unit, pgrouting etc.
+  note that for some extensions such as postgis you need to specify also version for ex. `postgis-2.4`
+- `postgres_install_os` - yes/no - install OS postgres package rather than from PGDG
+  (which is the default source)
 
-Dependencies
-------------
-
+see `default.yml` for more
 
 Example Playbook
 ----------------
 
-    - hosts: servers
+    - hosts: dbservers
       roles:
-         - role: postgres
-           db_name: mydb
-           db_user: dbuser
-           db_port: 5432
-           postgis: yes
+        - role: postgres
+          postgres_roles:
+            - name: myuser
+              pass: secretpass
+          postgres_dbs:
+            - name: mydb
+              owner: myuser
+              exts: [unaccent,hstore,postgis]
+              privs: []
+          postgres_exts: [postgis-2.4]
 
 License
 -------
