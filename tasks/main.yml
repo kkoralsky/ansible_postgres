@@ -3,20 +3,12 @@
   apt: name=python-psycopg2
   tags: bootstrap
 
-- block:
-  - name: install postgresql server
-    apt: name='postgresql-{{ postgres_ver }}'
-  - name: install contrib packages
-    apt: name='postgresql-contrib-{{ postgres_ver }}'
-    when: postgres_exts|length > 0
-  - name: install postgis
-    apt: name='postgresql-{{ postgres_ver }}-postgis-{{ postgis_ver }}'
-    when: '"postgis" in {{ postgres_exts }}'
-  tags: install
+- include: install.yml
   when: postgres_install
+  tags: install
 
 - name: ensure that config dir is created
-  file: path='/etc/postgresql/{{ postgres_ver }}/main' state=directory
+  file: path='/etc/postgresql/{{ postgres_ver }}/main' state=directory mode='u=rwx,g=rx,o=rx'
 
 - name: configure postgres
   template:
@@ -30,22 +22,35 @@
     - pg_hba.conf.j2
     - pg_ident.conf.j2
   notify: reload dbserver
-
-- meta: flush_handlers
+  when: postgres_configure
 
 - name: ensure server is started
   service: name=postgresql state=started
 
-- name: add postgresql role
-  postgresql_user:
-    name: '{{ db_user }}'
-    password: '{{ db_pass }}'
-    port: '{{ db_port }}'
-    role_attr_flags: '{{ db_priv }}'
+- meta: flush_handlers
 
-- name: createdb
-  postgresql_db: name='{{ db_name }}' owner='{{ db_user }}' port='{{ db_port }}'
+- name: add roles
+  postgresql_user:
+    name: '{{ item.name }}'
+    password: '{{ item.pass|default("") }}'
+    port: '{{ postgres_port }}'
+    role_attr_flags: '{{ item.privs|default("") }}'
+  with_items: '{{ postgres_roles }}' 
+
+- name: create dbs
+  postgresql_db: name='{{ item.name }}' owner='{{ item.owner }}' port='{{ postgres_port }}'
+  with_items: '{{ postgres_dbs }}'
 
 - name: add extensions
-  postgresql_ext: name={{ item }} db='{{ db_name }}' port='{{ db_port }}' 
-  with_items: '{{ postgres_exts }}'
+  postgresql_ext: name={{ item.1 }} db='{{ item.0.name }}' port='{{ postgres_port }}' 
+  with_subelements:
+    - '{{ postgres_dbs }}'
+    - exts
+
+- name: add more db priviledges
+  postgresql_privs: roles='{{ item.1.roles }}' type='{{ item.1.type|default("table") }}'
+                    objs='{{ item.1.objs|default("ALL_IN_SCHEMA") }}' db='{{ item.0.name }}'
+                    privs='{{ item.1.privs|default("ALL") }}'
+  with_subelements:
+    - '{{ postgres_dbs }}'
+    - privs
