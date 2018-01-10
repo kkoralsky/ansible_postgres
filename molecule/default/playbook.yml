@@ -1,0 +1,14 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: postgres
+      postgres_roles:
+        - name: myuser
+          pass: secretpass
+      postgres_dbs:
+        - name: mydb
+          owner: myuser
+          exts: [unaccent,hstore,postgis]
+          privs: []
+      postgres_exts: [similarity,postgis-2.3]
