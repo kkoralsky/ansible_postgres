@@ -15,7 +15,7 @@ postgres_dbs:
         privs: SELECT
 
 postgres_port: 5432
-postgres_ver: 9.5
+postgres_version: 9.5
 postgres_exts: []
 postgres_remotes: []
 postgres_listen: '*'
@@ -24,5 +24,6 @@ postgres_install: yes
 postgres_install_os: no  # use PGDG distribtuion instead
 postgres_configure: yes
 
-postgres_data_directory: '/var/lib/postgresql/{{ postgres_ver }}/main'
+postgres_data_directory: '/var/lib/postgresql/{{ postgres_version }}/main'
 postgres_max_connections: 100
+

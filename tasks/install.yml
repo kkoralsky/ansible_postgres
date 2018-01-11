@@ -1,9 +1,9 @@
 - block:
   - name: install postgresql server
     apt: name='{{ item }}'
-    with_items: ['postgresql-{{ postgres_ver }}', 'postgresql-contrib-{{ postgres_ver }}']
+    with_items: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
   - name: install postgres exts
-    apt: name='postgresql-{{ postgres_ver }}-{{ item }}' update_cache=no
+    apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
     with_items: '{{ postgres_exts }}'
   when: postgres_install_os
 - block:
@@ -17,9 +17,9 @@
   - name: install postgresql server
     apt: name='{{ item }}'
          default_release='{{ postgres_pgdg.release }}'
-    with_items: ['postgresql-{{ postgres_ver }}', 'postgresql-contrib-{{ postgres_ver }}']
+    with_items: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
   - name: install postgres exts
-    apt: name='postgresql-{{ postgres_ver }}-{{ item }}' update_cache=no
+    apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
          default_release='{{ postgres_pgdg.release }}'
     with_items: '{{ postgres_exts }}'
   when: not postgres_install_os

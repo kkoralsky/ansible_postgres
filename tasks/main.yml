@@ -8,12 +8,12 @@
   tags: install
 
 - name: ensure that config dir is created
-  file: path='/etc/postgresql/{{ postgres_ver }}/main' state=directory mode='u=rwx,g=rx,o=rx'
+  file: path='/etc/postgresql/{{ postgres_version }}/main' state=directory mode='u=rwx,g=rx,o=rx'
 
 - name: configure postgres
   template:
     src: '{{ item }}'
-    dest: '/etc/postgresql/{{ postgres_ver }}/main/{{ item|replace(".j2", "") }}'
+    dest: '/etc/postgresql/{{ postgres_version }}/main/{{ item|replace(".j2", "") }}'
     mode: 0640
     owner: postgres
     group: postgres
