@@ -3,31 +3,13 @@
   apt: name=python-psycopg2
   tags: bootstrap
 
-- include: install.yml
+- include_tasks: install.yml
   when: postgres_install
-  tags: install
+  tags: postgres_install
 
-- name: ensure that config dir is created
-  file: path='/etc/postgresql/{{ postgres_version }}/main' state=directory mode='u=rwx,g=rx,o=rx'
-
-- name: configure postgres
-  template:
-    src: '{{ item }}'
-    dest: '/etc/postgresql/{{ postgres_version }}/main/{{ item|replace(".j2", "") }}'
-    mode: 0640
-    owner: postgres
-    group: postgres
-  with_items:
-    - postgresql.conf.j2
-    - pg_hba.conf.j2
-    - pg_ident.conf.j2
-  notify: reload dbserver
+- include_tasks: configure.yml
   when: postgres_configure
-
-- name: ensure server is started
-  service: name=postgresql state=started
-
-- meta: flush_handlers
+  tags: postgres_configure
 
 - name: add roles
   postgresql_user:
