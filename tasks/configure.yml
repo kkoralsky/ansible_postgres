@@ -12,7 +12,7 @@
   - name: stop cluster before moving it to new dir
     service: name=postgresql state=stopped
   - name: move cluster to new data dir
-    command: 'mv {{ cluster_info.stdout.split()[5] }} {{ postgres_data_directory }}'
+    command: 'mv -T {{ cluster_info.stdout.split()[5] }} {{ postgres_data_directory }}'
   when:
     - cluster_info.rc == 0
     - cluster_info.stdout.split()[5] != postgres_data_directory
