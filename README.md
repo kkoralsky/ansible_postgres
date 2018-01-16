@@ -24,9 +24,11 @@ Role Variables
     - `privs` - comma sepecated role priviledges: `[NO]SUPERUSER`, `[NO]CREATEROLE`, `[NO]CREATEUSER`,
         `[NO]CREATEDB`, `[NO]INHERIT`, `[NO]LOGIN`, `[NO]REPLICATION`,
         `[NO]BYPASSRLS`
-- `postgres_version` - postgresql server version; default: 9.5
 - `postgres_exts` - postgres extensions to install: like similarity, unit, pgrouting etc.
   note that for some extensions such as postgis you need to specify also version for ex. `postgis-2.4`
+- `postgres_remotes` - list of IPs along with their netmasks that should be authorized to reach
+  this server (separated by space); this can also be in CIDR notation: `<address>/<mask length>`
+- `postgres_version` - postgresql server version; default: 9.5
 - `postgres_install_os` - yes/no - install OS postgres package rather than from PGDG
   (which is the default source)
 
