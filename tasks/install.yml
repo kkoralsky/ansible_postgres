@@ -1,25 +1,26 @@
 - block:
   - name: install postgresql server
-    apt: name='{{ item }}'
-    with_items: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
+    apt:
+      name: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
   - name: install postgres exts
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
-    with_items: '{{ postgres_exts }}'
+    loop: '{{ postgres_exts }}'
   when: postgres_install_os
 - block:
   - name: ensure certificates and gnupg is installed
-    apt: name='{{ item }}' state=present
-    with_items: [ca-certificates, gnupg]
+    apt:
+      name: [ca-certificates, gnupg]
+      state: present
   - name: add PGDG repository key
     apt_key: url='{{ postgres_pgdg.key }}'
   - name: add PGDG apt repository 
     apt_repository: repo='{{ postgres_pgdg.repo }}' 
   - name: install postgresql server
-    apt: name='{{ item }}'
-         default_release='{{ postgres_pgdg.release }}'
-    with_items: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
+    apt:
+      name: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
+      default_release: '{{ postgres_pgdg.release }}'
   - name: install postgres exts
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
          default_release='{{ postgres_pgdg.release }}'
-    with_items: '{{ postgres_exts }}'
+    loop: '{{ postgres_exts }}'
   when: not postgres_install_os
