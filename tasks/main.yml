@@ -11,9 +11,6 @@
   when: postgres_configure
   tags: postgres_configure
 
-- name: ensure postgres is running
-  service: name=postgresql state=started
-
 - name: add roles
   postgresql_user:
     name: '{{ item.name }}'
