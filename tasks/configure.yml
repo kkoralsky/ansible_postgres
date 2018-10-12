@@ -48,5 +48,9 @@
   notify: reload dbserver
   when: item != "recovery.conf.j2" or postgres_standby
 
+- name: ensure there is no recovery.conf file on master
+  file: name='/etc/postgresql/{{ postgres_version }}/main/recovery.conf' state=absent
+  when: not postgres_standby
+
 - name: ensure postgres is running
   service: name=postgresql state=started
