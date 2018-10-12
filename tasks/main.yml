@@ -3,6 +3,12 @@
   apt: name=python-psycopg2
   tags: bootstrap
 
+- name: install locale
+  apt: name=locales
+
+- name: generate locale 
+  locale_gen: name='{{ postgres_locale }}'
+
 - import_tasks: install.yml
   when: postgres_install
   tags: postgres_install
