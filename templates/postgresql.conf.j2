@@ -174,7 +174,7 @@ dynamic_shared_memory_type = posix	# the default is the first option
 # - Settings -
 
 {% if postgres_replication %}
-wal_level = hot_standby			# minimal, archive, hot_standby, or logical
+wal_level = {% if postgres_replication.hot_standby is defined %}hot_standby{% else %}archive{% endif %}
 {% endif %}
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
