@@ -1,0 +1,14 @@
+---
+- name: provision master
+  hosts: debian-stretch
+  vars_files:
+    - vars.yml
+  roles:
+    - role: postgres
+- name: provision replica
+  hosts: replica
+  vars_files:
+    - vars.yml
+  roles:
+    - role: postgres
+      postgres_standby: yes

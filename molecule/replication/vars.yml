@@ -1,0 +1,12 @@
+postgres_roles:
+  - name: myuser
+    pass: secretpass
+postgres_dbs:
+  - name: mydb
+    owner: myuser
+    privs: []
+    exts: []
+postgres_replication:
+  primary_host: debian-stretch
+  secondary_host: replica
+  archive_dest: /var/lib/postgresql/archive

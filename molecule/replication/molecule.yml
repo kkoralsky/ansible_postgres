@@ -1,0 +1,27 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+  networks: [{name: replication_network}]
+lint:
+  name: yamllint
+platforms:
+  - name: debian-stretch
+    image: debian:stretch
+    links: ['replica:replica']
+    networks: [{name: replication_network}]
+  - name: replica
+    image: debian:stretch
+    networks: [{name: replication_network}]
+    links: ['debian-stretch:debian-stretch']
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+scenario:
+  name: replication
+verifier:
+  name: goss
+  lint:
+    name: yamllint
