@@ -31,6 +31,18 @@ Role Variables
 - `postgres_version` - postgresql server version; default: 9.5
 - `postgres_install_os` - yes/no - install OS postgres package rather than from PGDG
   (which is the default source)
+- `postgres_replication` - dictionary w/ replication configuration
+    - `primary_host` - hostname or IP of the *primary*/*master* postgres server (required)
+    - `secondary_host` - hostname or IP of the *secondary*/*standby* server (required)
+    - `subnet_length` - subnet length needed for CIDR notation; if defined both
+      above keys are meant to be IPs, otherwise hostnames  
+    - `streaming` - if defined, streaming replication is performed
+    - `hot_standby` - allow readonly queries on standby  
+    - `archive_dest` - destination of the archive on the standby server;
+      if not defined, `streaming` key should be defined
+    - `password` - password for replication user; if not defined - no authentication is required
+    - `sleep` - sleep time for `pg_standby` (default: 5)
+- `postgres_standby` - provisioned host is *standby*/*secondary* 
 
 see `default.yml` for more
 
