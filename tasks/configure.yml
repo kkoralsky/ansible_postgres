@@ -50,5 +50,3 @@
 
 - name: ensure postgres is running
   service: name=postgresql state=started
-
-- meta: flush_handlers

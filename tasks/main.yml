@@ -11,6 +11,8 @@
   when: postgres_configure
   tags: postgres_configure
 
+- meta: flush_handlers
+
 - name: add roles
   postgresql_user:
     name: '{{ item.name }}'
