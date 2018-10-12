@@ -1,3 +1,5 @@
 ---
 - name: reload dbserver
   service: name=postgresql state=reloaded
+- name: reload rsyncd
+  service: name=rsync state=reloaded

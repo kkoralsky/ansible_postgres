@@ -3,11 +3,11 @@
   apt: name=python-psycopg2
   tags: bootstrap
 
-- include_tasks: install.yml
+- import_tasks: install.yml
   when: postgres_install
   tags: postgres_install
 
-- include_tasks: configure.yml
+- import_tasks: configure.yml
   when: postgres_configure
   tags: postgres_configure
 
@@ -19,12 +19,19 @@
     role_attr_flags: '{{ item.privs|default("") }}'
   with_items: '{{ postgres_roles }}' 
 
+- name: add replication role
+  postgresql_user: name=replication password='{{ postgres_replication.password|default(omit) }}'
+                   role_attr_flags=REPLICATION
+  when:
+    - postgres_replication
+    - not postgres_standby
+
 - name: create dbs
   postgresql_db: name='{{ item.name }}' owner='{{ item.owner }}' port='{{ postgres_port }}'
   with_items: '{{ postgres_dbs }}'
 
 - name: add extensions
-  postgresql_ext: name={{ item.1 }} db='{{ item.0.name }}' port='{{ postgres_port }}' 
+  postgresql_ext: name={{ item.1 }} db='{{ item.0.name }}' port='{{ postgres_port }}'
   with_subelements:
     - '{{ postgres_dbs }}'
     - exts
@@ -36,3 +43,15 @@
   with_subelements:
     - '{{ postgres_dbs }}'
     - privs
+
+- block:
+  - name: create archive dest
+    file: name='{{ postgres_replication.archive_dest }}' state=directory
+          owner=postgres group=postgres
+  - name: create rsync destination definition for WAL archive
+    template: src=rsyncd.j2 dest=/etc/rsyncd.conf
+    notify: reload rsyncd
+  when:
+    - postgres_replication
+    - postgres_replication.archive_dest is defined
+    - postgres_standby

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+[postgres_wal]
+    path = {{ postgres_replication.archive_dest }}
+    comment = Postgres DB WAL Archives
+    uid = postgres
+    gid = postgres
+    read only = false
+    hosts allow = {{ postgres_replication.primary_host }} {{ postgres_replication.secondary_host }}
+    hosts deny = *

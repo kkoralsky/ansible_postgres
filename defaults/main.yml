@@ -27,3 +27,5 @@ postgres_configure: yes
 postgres_data_directory: '/var/lib/postgresql/{{ postgres_version }}/main'
 postgres_max_connections: 100
 
+postgres_replication: no
+postgres_standby: no

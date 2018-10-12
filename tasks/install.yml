@@ -24,3 +24,6 @@
          default_release='{{ postgres_pgdg.release }}'
     loop: '{{ postgres_exts }}'
   when: not postgres_install_os
+- name: install rsync
+  apt: name=rsync
+  when: postgres_replication is defined and postgres_replication.archive_dest is defined

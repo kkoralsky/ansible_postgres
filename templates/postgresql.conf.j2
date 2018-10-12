@@ -173,7 +173,9 @@ dynamic_shared_memory_type = posix	# the default is the first option
 
 # - Settings -
 
-#wal_level = minimal			# minimal, archive, hot_standby, or logical
+{% if postgres_replication %}
+wal_level = hot_standby			# minimal, archive, hot_standby, or logical
+{% endif %}
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
 #synchronous_commit = on		# synchronization level;
@@ -204,12 +206,10 @@ dynamic_shared_memory_type = posix	# the default is the first option
 
 # - Archiving -
 
-#archive_mode = off		# allows archiving to be done
-				# (change requires restart)
-#archive_command = ''		# command to use to archive a logfile segment
-				# placeholders: %p = path of file to archive
-				#               %f = file name only
-				# e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
+{% if postgres_replication and not postgres_standby|bool %}
+archive_mode = on
+archive_command = 'rsync -aq %p {{ postgres_replication.secondary_host }}::postgres_wal/%f'
+{% endif %}
 #archive_timeout = 0		# force a logfile segment switch after this
 				# number of seconds; 0 disables
 
@@ -243,8 +243,10 @@ dynamic_shared_memory_type = posix	# the default is the first option
 
 # These settings are ignored on a master server.
 
-#hot_standby = off			# "on" allows queries during recovery
-					# (change requires restart)
+{% if postgres_replication.hot_standby is defined %}
+hot_standby = on	
+{% endif %}
+
 #max_standby_archive_delay = 30s	# max delay before canceling queries
 					# when reading WAL from archive;
 					# -1 allows indefinite delay
