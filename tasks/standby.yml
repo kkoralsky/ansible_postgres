@@ -5,11 +5,11 @@
           owner=postgres group=postgres
   - name: enable rsyncd daemon 
     lineinfile: path=/etc/default/rsync regexp='^RSYNC_ENABLE=' line='RSYNC_ENABLE=true'
-  - name: make sure rsync daemon is running
-    service: name=rsync state=started
   - name: create rsync destination definition for WAL archive
     template: src=rsyncd.j2 dest=/etc/rsyncd.conf
     notify: restart rsyncd
+  - name: make sure rsync daemon is running
+    service: name=rsync state=started
   when:
     - postgres_replication
     - postgres_replication.archive_dest is defined
