@@ -25,7 +25,7 @@
   - name: set db data dir permission
     file: name='{{ postgres_data_directory }}' state=directory recurse=yes
           owner=postgres group=postgres
-  when: postgres_basebackup
+  when: postgres_basebackup|bool
 
 - name: configure recovery
   template: src=recovery.conf.j2 dest='{{ postgres_data_directory }}/recovery.conf'
