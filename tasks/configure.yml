@@ -17,7 +17,7 @@
     - cluster_info.rc is defined 
     - cluster_info.rc == 0
     - cluster_info.stdout.split()[5] != postgres_data_directory
-    - not postgres_standby
+    - not postgres_standby|bool
 
 - name: create cluster
   command: 'pg_createcluster -d {{ postgres_data_directory }} {{ postgres_version }} main'
@@ -29,7 +29,7 @@
   when:
     - cluster_info.rc is defined
     - cluster_info.rc != 0
-    - not postgres_standby
+    - not postgres_standby|bool
 
 - name: ensure that config dir is created
   file: path='/etc/postgresql/{{ postgres_version }}/main'
@@ -50,4 +50,4 @@
 
 - name: ensure there is no recovery.conf file on master
   file: name='{{ postgres_data_directory }}/recovery.conf' state=absent
-  when: not postgres_standby
+  when: not postgres_standby|bool
