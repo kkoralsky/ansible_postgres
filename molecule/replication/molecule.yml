@@ -17,6 +17,10 @@ platforms:
     links: ['debian-stretch:debian-stretch']
 provisioner:
   name: ansible
+  inventory:
+    hostvars:
+      replica: {ansible_host: replica}
+      debian-stretch: {ansible_host: debian-stretch}
   lint:
     name: ansible-lint
 scenario:

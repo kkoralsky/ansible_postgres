@@ -1,0 +1,8 @@
+all:
+  hosts:
+    debian-stretch:
+      ansible_host: debian-stretch
+      ansible_connection: docker
+    replict:
+      ansible_host: replica
+      ansible_connection: docker
