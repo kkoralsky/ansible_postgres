@@ -43,6 +43,8 @@ Role Variables
     - `password` - password for replication user; if not defined - no authentication is required
     - `sleep` - sleep time for `pg_standby` (default: 5)
 - `postgres_standby` - provisioned host is *standby*/*secondary* 
+- `postgres_basebackup` - if true - we're **purging** postgres data directory and performing `pg_basebackup`
+  from master (taking `postgres_replication.primary_host` as a source)
 
 see `default.yml` for more
 
