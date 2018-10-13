@@ -1,0 +1,28 @@
+---
+- block:
+  - name: create archive dest
+    file: name='{{ postgres_replication.archive_dest }}' state=directory
+          owner=postgres group=postgres
+  - name: create rsync destination definition for WAL archive
+    template: src=rsyncd.j2 dest=/etc/rsyncd.conf
+    notify: restart rsyncd
+  when:
+    - postgres_replication
+    - postgres_replication.archive_dest is defined
+
+- block:
+  - name: purge db data directory
+    file: name='{{ postgres_data_directory }}/' state=absent
+          owner=postgres group=postgres
+  - name: launch pg_basebackup to catch up from master
+    command: 'pg_basebackup -D{{ postgres_data_directory }} -h{{ postgres_replication.primary_host }} -Ureplication'
+    register: pg_basebackup
+    notify: restart dbserver
+  - name: set db data dir permission
+    file: name='{{ postgres_data_directory }}' state=directory recurse=yes
+          owner=postgres group=postgres
+  when: postgres_basebackup
+
+- name: configure recovery
+  template: src=recovery.conf.j2 dest='{{ postgres_data_directory }}/recovery.conf'
+            owner=postgres group=postgres

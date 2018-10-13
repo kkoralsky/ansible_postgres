@@ -12,4 +12,4 @@ restore_command = 'pg_standby -s {{ postgres_replication.sleep|default(5) }} -t 
 archive_cleanup_command = 'pg_archivecleanup {{ postgres_replication.archive_dest }} %r'
 {% endif %}
 recovery_end_command = 'rm -f {{ postgres_replication.trigger_file|default(postgres_default_trigger_file) }}'
-trigger_file = {{ postgres_replication.trigger_file|default(postgres_default_trigger_file) }}
+trigger_file = '{{ postgres_replication.trigger_file|default(postgres_default_trigger_file) }}'

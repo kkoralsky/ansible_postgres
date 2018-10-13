@@ -222,7 +222,9 @@ archive_command = 'rsync -aq %p {{ postgres_replication.secondary_host }}::postg
 
 # Set these on the master and on any standby that will send replication data.
 
-#max_wal_senders = 0		# max number of walsender processes
+{% if postgres_replication %}
+max_wal_senders = 2		# max number of walsender processes
+{% endif %}
 				# (change requires restart)
 #wal_keep_segments = 0		# in logfile segments, 16MB each; 0 disables
 #wal_sender_timeout = 60s	# in milliseconds; 0 disables

@@ -1,0 +1,31 @@
+---
+- name: add roles
+  postgresql_user:
+    name: '{{ item.name }}'
+    password: '{{ item.pass|default("") }}'
+    port: '{{ postgres_port }}'
+    role_attr_flags: '{{ item.privs|default("") }}'
+  with_items: '{{ postgres_roles }}' 
+
+- name: add replication role
+  postgresql_user: name=replication password='{{ postgres_replication.password|default(omit) }}'
+                   role_attr_flags=REPLICATION
+  when: postgres_replication
+
+- name: create dbs
+  postgresql_db: name='{{ item.name }}' owner='{{ item.owner }}' port='{{ postgres_port }}'
+  with_items: '{{ postgres_dbs }}'
+
+- name: add extensions
+  postgresql_ext: name={{ item.1 }} db='{{ item.0.name }}' port='{{ postgres_port }}'
+  with_subelements:
+    - '{{ postgres_dbs }}'
+    - exts
+
+- name: add more db priviledges
+  postgresql_privs: roles='{{ item.1.roles }}' type='{{ item.1.type|default("table") }}'
+                    objs='{{ item.1.objs|default("ALL_IN_SCHEMA") }}' db='{{ item.0.name }}'
+                    privs='{{ item.1.privs|default("ALL") }}'
+  with_subelements:
+    - '{{ postgres_dbs }}'
+    - privs

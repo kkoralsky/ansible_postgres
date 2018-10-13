@@ -17,6 +17,7 @@
     - cluster_info.rc is defined 
     - cluster_info.rc == 0
     - cluster_info.stdout.split()[5] != postgres_data_directory
+    - not postgres_standby
 
 - name: create cluster
   command: 'pg_createcluster -d {{ postgres_data_directory }} {{ postgres_version }} main'
@@ -28,6 +29,7 @@
   when:
     - cluster_info.rc is defined
     - cluster_info.rc != 0
+    - not postgres_standby
 
 - name: ensure that config dir is created
   file: path='/etc/postgresql/{{ postgres_version }}/main'
@@ -44,13 +46,8 @@
     - postgresql.conf.j2
     - pg_hba.conf.j2
     - pg_ident.conf.j2
-    - recovery.conf.j2
-  notify: reload dbserver
-  when: item != "recovery.conf.j2" or postgres_standby
+  notify: restart dbserver
 
 - name: ensure there is no recovery.conf file on master
-  file: name='/etc/postgresql/{{ postgres_version }}/main/recovery.conf' state=absent
+  file: name='{{ postgres_data_directory }}/recovery.conf' state=absent
   when: not postgres_standby
-
-- name: ensure postgres is running
-  service: name=postgresql state=started
