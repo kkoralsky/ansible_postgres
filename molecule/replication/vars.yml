@@ -10,3 +10,5 @@ postgres_replication:
   primary_host: debian-stretch
   secondary_host: replica
   archive_dest: /var/lib/postgresql/archive
+  streaming: yes
+  hot_standby: yes
