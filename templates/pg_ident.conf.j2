@@ -2,3 +2,6 @@
 # MAPNAME       SYSTEM-USERNAME         PG-USERNAME
 rp	            root			        postgres
 rp              postgres                postgres
+{% for role in postgres_roles %}
+rp              root                    {{ role.name }}
+{% endfor %}
