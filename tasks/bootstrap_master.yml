@@ -42,8 +42,8 @@
 
 - name: restore database dump
   command: |
-    pg_restore -Upostgres -d{{ item.name }} --jobs={{ ansible_processor_vcpus }}\
-               --clean --no-owner {{ postgres_dump_dest }}/{{ item.dump|basename }}
+    pg_restore -U{{ item.owner }} -d{{ item.name }} --jobs={{ ansible_processor_vcpus }}\
+               --clean --no-owner --if-exists {{ postgres_dump_dest }}/{{ item.dump|basename }}
   when:
     - item.dump is defined
     - postgres_do_restore|bool
