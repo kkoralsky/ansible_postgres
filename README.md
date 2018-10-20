@@ -14,8 +14,10 @@ Role Variables
 - `postgres_dbs` - list of mappings with following keys:
     - `name` database name
     - `owner` role name owning given database
-    - `exts` list of postgres extensions available for db
-    - `privs` list of mappings:
+    - `dump` - path to `pg_dump` result of database
+    - `exts` list of postgres extensions available for db (required, leave empty
+      list if not applicable)
+    - `privs` list of mappings: (required; leave empty list if not applicable)
         - `roles` - comma seperated role names (string)
         - `privs` - comma seperated database priviledges: `SELECT`, `UPDATE`, `INSERT` etc.
 - `postgres_roles` - list of mappings w/ following keys:
@@ -42,11 +44,12 @@ Role Variables
       if not defined, `streaming` key should be defined
     - `password` - password for replication user; if not defined - no authentication is required
     - `sleep` - sleep time for `pg_standby` (default: 5)
+- `postgres_dump_dest` - directory where to put dumps ready to load to database
 - `postgres_standby` - provisioned host is *standby*/*secondary* 
 - `postgres_basebackup` - if true - we're **purging** postgres data directory and performing `pg_basebackup`
   from master (taking `postgres_replication.primary_host` as a source)
 
-see `default.yml` for more
+see `main/default.yml` for more
 
 Example Playbook
 ----------------
