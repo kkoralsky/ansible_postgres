@@ -29,3 +29,23 @@
   with_subelements:
     - '{{ postgres_dbs }}'
     - privs
+
+- name: ensure dump archive destination exists
+  file: name='{{ postgres_dump_dest }}' state=directory recurse=yes
+  tags: postgres_restore
+
+- name: rsync databases dumps
+  synchronize: src='{{ item.dump }}' dest='{{ postgres_dump_dest }}/'
+  when: item.dump is defined
+  with_items: '{{ postgres_dbs }}'
+  tags: postgres_restore
+
+- name: restore database dump
+  command: |
+    pg_restore -Upostgres -d{{ item.name }} --jobs={{ ansible_processor_vcpus }}\
+               --clean --no-owner {{ postgres_dump_dest }}/{{ item.dump|basename }}
+  when:
+    - item.dump is defined
+    - postgres_do_restore|bool
+  with_items: '{{ postgres_dbs }}'
+  tags: postgres_restore
