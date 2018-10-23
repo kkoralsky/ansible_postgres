@@ -1,5 +1,5 @@
 postgres_pgdg:
   release: '{{ ansible_distribution_release }}-pgdg'
-  repo: deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+  repo: deb https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
   key: https://www.postgresql.org/media/keys/ACCC4CF8.asc
 postgres_default_trigger_file: '/tmp/postgres.trigger.{{ postgres_port }}'

@@ -9,7 +9,7 @@
 - block:
   - name: ensure certificates and gnupg is installed
     apt:
-      name: [ca-certificates, gnupg]
+      name: [ca-certificates, gnupg, apt-transport-https]
       state: present
   - name: add PGDG repository key
     apt_key: url='{{ postgres_pgdg.key }}'
