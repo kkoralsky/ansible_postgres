@@ -18,6 +18,7 @@
   tags: postgres_configure
 
 - import_tasks: standby.yml
+  tags: postgres_standby
   when:
     - postgres_replication
     - postgres_standby|bool
@@ -29,3 +30,4 @@
 
 - import_tasks: bootstrap_master.yml
   when: not postgres_standby|bool
+  tags: postgres_master
