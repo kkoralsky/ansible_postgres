@@ -15,7 +15,7 @@ postgres_dbs:
         privs: SELECT
 
 postgres_port: 5432
-postgres_version: 9.5
+postgres_version: 9.6
 postgres_exts: []
 postgres_remotes: []
 postgres_listen: '*'
