@@ -5,7 +5,7 @@
   - name: install postgres exts
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
     loop: '{{ postgres_exts }}'
-  when: postgres_install_os
+  when: postgres_install_os|bool
 - block:
   - name: ensure certificates and gnupg is installed
     apt:
@@ -23,7 +23,7 @@
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
          default_release='{{ postgres_pgdg.release }}'
     loop: '{{ postgres_exts }}'
-  when: not postgres_install_os
+  when: not postgres_install_os|bool
 - name: install rsync
   apt: name=rsync
-  when: postgres_replication is defined and postgres_replication.archive_dest is defined
+  when: postgres_replication.archive_dest is defined

@@ -10,7 +10,7 @@
 - name: add replication role
   postgresql_user: name=replication password='{{ postgres_replication.password|default(omit) }}'
                    role_attr_flags=REPLICATION
-  when: postgres_replication
+  when: postgres_replication|bool
 
 - name: create dbs
   postgresql_db: name='{{ item.name }}' owner='{{ item.owner }}' port='{{ postgres_port }}'
