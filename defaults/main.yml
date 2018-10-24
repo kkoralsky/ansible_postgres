@@ -23,6 +23,7 @@ postgres_locale: pl_PL.UTF-8
 
 postgres_install: yes
 postgres_install_os: no  # use PGDG distribtuion instead
+postgres_data_dir: yes
 postgres_configure: yes
 
 postgres_data_directory: '/var/lib/postgresql/{{ postgres_version }}/main'
