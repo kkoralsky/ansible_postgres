@@ -11,7 +11,7 @@
 
 - import_tasks: install.yml
   when: postgres_install
-  tags: postgres_install
+  tags: [postgres_install, install]
 
 - import_tasks: configure.yml
   when: postgres_configure
