@@ -14,6 +14,8 @@ postgres_dbs:
       - roles: minor
         privs: SELECT
 
+postgres_dba_users: [root]
+
 postgres_port: 5432
 postgres_version: 9.6
 postgres_exts: []
@@ -35,3 +37,5 @@ postgres_basebackup: no
 
 postgres_dump_dest: /tmp/pg_dumps
 postgres_do_restore: no
+
+postgres_idle_in_transaction_session_timeout: 0

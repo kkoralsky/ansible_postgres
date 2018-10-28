@@ -1,6 +1,8 @@
 # {{ ansible_managed }}
 # MAPNAME       SYSTEM-USERNAME         PG-USERNAME
-rp	            root			        postgres
+{% for dba in postgres_dba_users %}
+rp	            {{ dba }}		        postgres
+{% endfor %}
 rp              postgres                postgres
 {% for role in postgres_roles %}
 rp              root                    {{ role.name }}
