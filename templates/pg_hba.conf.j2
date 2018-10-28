@@ -9,8 +9,8 @@ host    replication     postgres        127.0.0.1/32            md5
 host    replication     postgres        ::1/128                 md5
 
 # configure remotes
-{% for host in  postgres_remotes %}
-host    all             all             {{ host }}              md5
+{% for remote in  postgres_remotes %}
+host  {{ remote.database|default('all') }} {{ remote.user|default('all') }} {{ remote.host|default(remote) }} {{ remote.method|default('md5') }}
 {% endfor %}
 {% if postgres_replication and postgres_replication.secondary_host is defined %}
 host    replication     replication     {{ postgres_replication.secondary_host }}{% if postgres_replication.subnet_length is defined %}/{{ postgres_replication.subnet_length }}{% endif %} {% if postgres_replication.password is defined %}md5{% else %}trust{% endif %}
