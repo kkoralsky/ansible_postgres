@@ -2,15 +2,15 @@
 - name: add roles
   postgresql_user:
     name: '{{ item.name }}'
-    password: '{{ item.pass|default("") }}'
+    password: '{{ item.pass|default(omit) }}'
     port: '{{ postgres_port }}'
     role_attr_flags: '{{ item.privs|default("") }}'
-  with_items: '{{ postgres_roles }}' 
+  loop: '{{ postgres_roles }}' 
 
 - name: add replication role
   postgresql_user: name=replication password='{{ postgres_replication.password|default(omit) }}'
                    role_attr_flags=REPLICATION
-  when: postgres_replication|bool
+  when: postgres_replication
 
 - name: create dbs
   postgresql_db: name='{{ item.name }}' owner='{{ item.owner }}' port='{{ postgres_port }}'
@@ -18,17 +18,13 @@
 
 - name: add extensions
   postgresql_ext: name={{ item.1 }} db='{{ item.0.name }}' port='{{ postgres_port }}'
-  with_subelements:
-    - '{{ postgres_dbs }}'
-    - exts
+  loop: '{{ postgres_dbs|subelements("exts", skip_missing=True) }}'
 
 - name: add more db priviledges
   postgresql_privs: roles='{{ item.1.roles }}' type='{{ item.1.type|default("table") }}'
                     objs='{{ item.1.objs|default("ALL_IN_SCHEMA") }}' db='{{ item.0.name }}'
                     privs='{{ item.1.privs|default("ALL") }}'
-  with_subelements:
-    - '{{ postgres_dbs }}'
-    - privs
+  loop: '{{ postgres_dbs|subelements("privs", skip_missing=True) }}'
 
 - name: ensure dump archive destination exists
   file: name='{{ postgres_dump_dest }}' state=directory recurse=yes
@@ -37,7 +33,7 @@
 - name: rsync databases dumps
   synchronize: src='{{ item.dump }}' dest='{{ postgres_dump_dest }}/'
   when: item.dump is defined
-  with_items: '{{ postgres_dbs }}'
+  loop: '{{ postgres_dbs }}'
   tags: postgres_restore
 
 - name: restore database dump
@@ -47,5 +43,5 @@
   when:
     - item.dump is defined
     - postgres_do_restore|bool
-  with_items: '{{ postgres_dbs }}'
+  loop: '{{ postgres_dbs }}'
   tags: postgres_restore

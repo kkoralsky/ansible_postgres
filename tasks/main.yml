@@ -30,7 +30,7 @@
 - import_tasks: standby.yml
   tags: postgres_standby
   when:
-    - postgres_replication|bool
+    - postgres_replication
     - postgres_standby|bool
 
 - name: ensure postgres is running
