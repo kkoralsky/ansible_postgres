@@ -66,7 +66,9 @@ max_connections = {{ postgres_max_connections }}			# (change requires restart)
 # Note:  Increasing max_connections costs ~400 bytes of shared memory per
 # connection slot, plus lock space (see max_locks_per_transaction).
 #superuser_reserved_connections = 3	# (change requires restart)
+{% if postgres_modern_version %}
 unix_socket_directories = '/var/run/postgresql'	# comma-separated list of directories
+{% endif %}
 					# (change requires restart)
 #unix_socket_group = ''			# (change requires restart)
 #unix_socket_permissions = 0777		# begin with 0 to use octal notation
@@ -75,8 +77,11 @@ unix_socket_directories = '/var/run/postgresql'	# comma-separated list of direct
 					# (change requires restart)
 #bonjour_name = ''			# defaults to the computer name
 					# (change requires restart)
+{% if postgres_modern_version %}
 idle_in_transaction_session_timeout = '{{ postgres_idle_in_transaction_session_timeout }}'
+{% endif %}
 
+{% if postgres_ssl %}
 # - Security and Authentication -
 
 #authentication_timeout = 1min		# 1s-600s
@@ -86,10 +91,15 @@ ssl = true				# (change requires restart)
 #ssl_prefer_server_ciphers = on		# (change requires restart)
 #ssl_ecdh_curve = 'prime256v1'		# (change requires restart)
 #ssl_renegotiation_limit = 512MB	# amount of data between renegotiations
+{% if postgres_modern_version %}
 ssl_cert_file = '/etc/ssl/certs/ssl-cert-snakeoil.pem'		# (change requires restart)
 ssl_key_file = '/etc/ssl/private/ssl-cert-snakeoil.key'		# (change requires restart)
-#ssl_ca_file = ''			# (change requires restart)
-#ssl_crl_file = ''			# (change requires restart)
+{% endif %}
+ssl_ca_file = ''			# (change requires restart)
+ssl_crl_file = ''			# (change requires restart)
+{% else %}
+ssl = false
+{% endif %}
 #password_encryption = on
 #db_user_namespace = off
 
@@ -129,7 +139,10 @@ shared_buffers = 128MB			# min 128kB
 #maintenance_work_mem = 64MB		# min 1MB
 #autovacuum_work_mem = -1		# min 1MB, or -1 to use maintenance_work_mem
 #max_stack_depth = 2MB			# min 100kB
+{% if postgres_modern_version %}
 dynamic_shared_memory_type = posix	# the default is the first option
+{% endif %}
+
 					# supported by the operating system:
 					#   posix
 					#   sysv
@@ -175,7 +188,13 @@ dynamic_shared_memory_type = posix	# the default is the first option
 # - Settings -
 
 {% if postgres_replication %}
-wal_level = {% if postgres_replication.hot_standby is defined %}hot_standby{% else %}archive{% endif %}
+{% if postgres_replication.hot_standby is defined %}
+wal_level = {% if postgres_modern_version %}replica{% else %}hot_standby{% endif %}
+{% elif postgres_replication.archive_dest is defined and not postgres_modern_version %}
+wal_level = archive
+{% else %}
+wal_level = minimal
+{% endif %}
 {% endif %}
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
@@ -207,7 +226,7 @@ wal_level = {% if postgres_replication.hot_standby is defined %}hot_standby{% el
 
 # - Archiving -
 
-{% if postgres_replication and not postgres_standby|bool %}
+{% if postgres_replication and not postgres_standby|bool and postgres_replication.archive_dest is defined %}
 archive_mode = on
 archive_command = 'rsync -aq %p {{ postgres_replication.secondary_host }}::postgres_wal/%f'
 {% endif %}
