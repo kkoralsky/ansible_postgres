@@ -1,7 +1,11 @@
 - block:
   - name: install postgresql server
     apt:
-      name: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
+      name:
+        - 'postgresql-{{ postgres_version }}'
+        - 'postgresql-contrib-{{ postgres_version }}'
+        - 'postgresql-client-{{ postgres_version }}'
+      default_release: 'l=Debian'
   - name: install postgres exts
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
     loop: '{{ postgres_exts }}'
@@ -10,14 +14,16 @@
   - name: ensure certificates and gnupg is installed
     apt:
       name: [ca-certificates, gnupg, apt-transport-https]
-      state: present
   - name: add PGDG repository key
     apt_key: url='{{ postgres_pgdg.key }}'
   - name: add PGDG apt repository 
     apt_repository: repo='{{ postgres_pgdg.repo }}' 
   - name: install postgresql server
     apt:
-      name: ['postgresql-{{ postgres_version }}', 'postgresql-contrib-{{ postgres_version }}']
+      name:
+        - 'postgresql-{{ postgres_version }}'
+        - 'postgresql-contrib-{{ postgres_version }}'
+        - 'postgresql-client-{{ postgres_version }}'
       default_release: '{{ postgres_pgdg.release }}'
   - name: install postgres exts
     apt: name='postgresql-{{ postgres_version }}-{{ item }}' update_cache=no
@@ -26,4 +32,3 @@
   when: not postgres_install_os|bool
 - name: install rsync
   apt: name=rsync
-  when: postgres_replication.archive_dest is defined
