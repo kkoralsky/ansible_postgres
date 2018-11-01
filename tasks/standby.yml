@@ -19,7 +19,7 @@
     file: name='{{ postgres_data_directory }}/' state=absent
           owner=postgres group=postgres
   - name: launch pg_basebackup to catch up from master
-    command: 'pg_basebackup -D{{ postgres_data_directory }} -h{{ postgres_replication.primary_host }} -Ureplication'
+    command: '/usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup -D{{ postgres_data_directory }} -h{{ postgres_replication.primary_host }} -Ureplication'
     register: pg_basebackup
     notify: restart dbserver
   - name: set db data dir permission
@@ -30,3 +30,4 @@
 - name: configure recovery
   template: src=recovery.conf.j2 dest='{{ postgres_data_directory }}/recovery.conf'
             owner=postgres group=postgres
+  notify: restart dbserver
