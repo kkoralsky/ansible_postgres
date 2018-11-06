@@ -9,7 +9,7 @@
 
 - name: add replication role
   postgresql_user: name=replication password='{{ postgres_replication.password|default(omit) }}'
-                   role_attr_flags=REPLICATION
+                   port='{{ postgres_port }}' role_attr_flags=REPLICATION
   when: postgres_replication
 
 - name: create dbs
@@ -38,8 +38,9 @@
 
 - name: restore database dump
   command: |
-    pg_restore -U{{ item.owner }} -d{{ item.name }} --jobs={{ ansible_processor_vcpus }}\
-               --clean --no-owner{% if postgres_modern_version %} --if-exists{% endif %} {{ postgres_dump_dest }}/{{ item.dump|basename }}
+    /usr/lib/postgresql/{{ postgres_version }}/bin/pg_restore -U{{ item.owner }} \
+      -d{{ item.name }} --jobs={{ ansible_processor_vcpus }} -p{{ postgres_port }}
+      {% if postgres_modern_version %} --if-exists{% endif %} {{ postgres_dump_dest }}/{{ item.dump|basename }}
   when:
     - item.dump is defined
     - postgres_do_restore|bool
