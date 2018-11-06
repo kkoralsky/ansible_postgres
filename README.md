@@ -39,6 +39,7 @@ Role Variables
   (which is the default source)
 - `postgres_replication` - dictionary w/ replication configuration
     - `primary_host` - hostname or IP of the *primary*/*master* postgres server (required)
+    - `primary_port`
     - `secondary_host` - hostname or IP of the *secondary*/*standby* server (required)
     - `subnet_length` - subnet length needed for CIDR notation; if defined both
       above keys are meant to be IPs, otherwise hostnames  
