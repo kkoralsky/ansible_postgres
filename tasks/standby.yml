@@ -17,18 +17,19 @@
 - block:
   - name: purge db data directory
     file: name='{{ postgres_data_directory }}/' state=absent
+  - name: recreate db data directory
+    file: name='{{ postgres_data_directory }}' state=directory
           owner=postgres group=postgres
   - name: launch pg_basebackup to catch up from master
-    command: | 
-      /usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup -D{{ postgres_data_directory }} \
-        -Ureplication -h{{ postgres_replication.primary_host }} \
-        {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %}
+    shell: | 
+      su -c '{% if postgres_basebackup_spawn|bool %}nohup {% endif %}/usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup \
+      -D{{ postgres_data_directory }} -Ureplication -h{{ postgres_replication.primary_host }} --verbose \
+        {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %} \
+        > ~/basebackup.log 2> ~/basebackup.log {% if postgres_basebackup_spawn|bool %} &{% endif %}' postgres
     environment: {PGPASSWORD: '{{ postgres_replication.password|default("") }}'}
     register: pg_basebackup
     notify: restart dbserver
-  - name: set db data dir permission
-    file: name='{{ postgres_data_directory }}' state=directory recurse=yes
-          owner=postgres group=postgres
+    ignore_errors: yes
   when: postgres_basebackup|bool
 
 - name: configure recovery

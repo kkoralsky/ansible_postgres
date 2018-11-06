@@ -37,9 +37,11 @@ postgres_max_connections: 100
 postgres_replication: no
 postgres_standby: no
 postgres_basebackup: no
+postgres_basebackup_spawn: no
 
 postgres_dump_dest: /tmp/pg_dumps
 postgres_do_restore: no
+postgres_do_restore_spawn: no
 
 postgres_idle_in_transaction_session_timeout: 0
 

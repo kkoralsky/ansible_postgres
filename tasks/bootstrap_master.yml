@@ -37,12 +37,15 @@
   tags: postgres_restore
 
 - name: restore database dump
-  command: |
-    /usr/lib/postgresql/{{ postgres_version }}/bin/pg_restore -U{{ item.owner }} \
-      -d{{ item.name }} --jobs={{ ansible_processor_vcpus }} -p{{ postgres_port }}
-      {% if postgres_modern_version %} --if-exists{% endif %} {{ postgres_dump_dest }}/{{ item.dump|basename }}
+  shell: |
+    {% if postgres_do_restore_spawn|bool %}nohup {% endif %}/usr/lib/postgresql/{{ postgres_version }}/bin/pg_restore \
+      --verbose -U{{ item.owner }} -d{{ item.name }} --jobs={{ ansible_processor_vcpus }} -p{{ postgres_port }} \
+      {% if postgres_modern_version %} --if-exists{% endif %} {{ postgres_dump_dest }}/{{ item.dump|basename }} \
+      >/var/lib/postgresql/pg_restore_{{ item.name }}.log 2>/var/lib/postgresql/pg_restore_{{ item.name }}.log \
+      {% if postgres_do_restore_spawn|bool %} &{% endif %}
   when:
     - item.dump is defined
     - postgres_do_restore|bool
+  ignore_errors: yes
   loop: '{{ postgres_dbs }}'
   tags: postgres_restore
