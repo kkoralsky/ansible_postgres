@@ -21,7 +21,10 @@ postgres_version: 9.6
 postgres_exts: []
 postgres_remotes: []
 postgres_listen: '*'
-postgres_locale: pl_PL.UTF-8
+
+postgres_timezone: Poland
+postgres_encoding: UTF-8
+postgres_locale: C.UTF-8
 
 postgres_install: yes
 postgres_install_os: no  # use PGDG distribtuion instead

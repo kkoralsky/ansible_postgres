@@ -547,7 +547,7 @@ stats_temp_directory = '/var/run/postgresql/{{ postgres_version }}-main.pg_stat_
 
 datestyle = 'iso, dmy'
 #intervalstyle = 'postgres'
-timezone = 'Poland'
+timezone = '{{ postgres_timezone }}'
 #timezone_abbreviations = 'Default'     # Select the set of available time zone
 					# abbreviations.  Currently, there are
 					#   Default
@@ -556,8 +556,7 @@ timezone = 'Poland'
 					# You can create your own file in
 					# share/timezonesets/.
 #extra_float_digits = 0			# min -15, max 3
-#client_encoding = sql_ascii		# actually, defaults to database
-					# encoding
+client_encoding = {{ postgres_encoding }}
 
 # These settings are initialized by initdb, but they can be changed.
 lc_messages = '{{ postgres_locale }}'
