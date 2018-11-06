@@ -181,20 +181,19 @@ dynamic_shared_memory_type = posix	# the default is the first option
 #max_worker_processes = 8
 
 
+{% if postgres_replication %}
 #------------------------------------------------------------------------------
 # WRITE AHEAD LOG
 #------------------------------------------------------------------------------
 
 # - Settings -
 
-{% if postgres_replication %}
 {% if postgres_replication.hot_standby is defined %}
 wal_level = {% if postgres_modern_version %}replica{% else %}hot_standby{% endif %}
 {% elif postgres_replication.archive_dest is defined and not postgres_modern_version %}
 wal_level = archive
 {% else %}
 wal_level = minimal
-{% endif %}
 {% endif %}
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
@@ -226,13 +225,12 @@ wal_level = minimal
 
 # - Archiving -
 
-{% if postgres_replication and not postgres_standby|bool and postgres_replication.archive_dest is defined %}
+{% if not postgres_standby|bool and postgres_replication.archive_dest is defined %}
 archive_mode = on
 archive_command = 'rsync -aq %p {{ postgres_replication.secondary_host }}::postgres_wal/%f'
 {% endif %}
 #archive_timeout = 0		# force a logfile segment switch after this
 				# number of seconds; 0 disables
-
 
 #------------------------------------------------------------------------------
 # REPLICATION
@@ -241,12 +239,11 @@ archive_command = 'rsync -aq %p {{ postgres_replication.secondary_host }}::postg
 # - Sending Server(s) -
 
 # Set these on the master and on any standby that will send replication data.
-
-{% if postgres_replication %}
-max_wal_senders = 2		# max number of walsender processes
-{% endif %}
+# max number of walsender processes
+max_wal_senders = {{ postgres_replication.max_wal_senders|default(2) }}
 				# (change requires restart)
-#wal_keep_segments = 0		# in logfile segments, 16MB each; 0 disables
+# in logfile segments, 16MB each; 0 disables
+wal_keep_segments = {{ postgres_replication.wal_keep_segments|default(0) }}
 #wal_sender_timeout = 60s	# in milliseconds; 0 disables
 
 #max_replication_slots = 0	# max number of replication slots
@@ -283,6 +280,7 @@ hot_standby = on
 					# communication from master
 					# in milliseconds; 0 disables
 
+{% endif %}
 
 #------------------------------------------------------------------------------
 # QUERY TUNING
