@@ -1,7 +1,8 @@
 - block:
-  - name: install postgresql server
+  - name: install postgresql from official Debian repos
     apt:
       name:
+        - postgresql-common
         - 'postgresql-{{ postgres_version }}'
         - 'postgresql-contrib-{{ postgres_version }}'
         - 'postgresql-client-{{ postgres_version }}'
@@ -18,9 +19,10 @@
     apt_key: url='{{ postgres_pgdg.key }}'
   - name: add PGDG apt repository 
     apt_repository: repo='{{ postgres_pgdg.repo }}' 
-  - name: install postgresql server
+  - name: install postgresql from PGDG
     apt:
       name:
+        - postgresql-common
         - 'postgresql-{{ postgres_version }}'
         - 'postgresql-contrib-{{ postgres_version }}'
         - 'postgresql-client-{{ postgres_version }}'
