@@ -1,7 +1,12 @@
+- name: ensure data directory is present
+  file: name='{{ postgres_data_directory }}' state=directory recurse=yes
+        owner=postgres group=postgres
+
 - name: check if cluster already exists in different dir
   command: 'pg_lsclusters -h {{ postgres_version }} main'
   register: cluster_info
   changed_when: false
+  ignore_errors: yes
 
 - block:
   - name: stop cluster before moving it to new dir
@@ -13,13 +18,13 @@
     - cluster_info.rc == 0
     - cluster_info.stdout.split()[5] != postgres_data_directory
 
-- name: create cluster
-  command: 'pg_createcluster -d {{ postgres_data_directory }} {{ postgres_version }} main'
-  register: create_cluster
-  changed_when: create_cluster.rc == 0
+- name: init cluster
+  shell: |
+    su -c "/usr/lib/postgresql/{{ postgres_version }}/bin/initdb -D {{ postgres_data_directory }} \
+      --locale={{ postgres_locale }} -E {{ postgres_encoding }}" postgres
+  register: initdb
+  changed_when: initdb.rc == 0
   failed_when:
-    - create_cluster.rc != 0
-    - not 'cluster configuration already exists' in create_cluster.stderr 
-  when:
-    - cluster_info.rc is defined
-    - cluster_info.rc != 0
+    - initdb.rc != 0
+    - not 'exists but is not empty' in initdb.stderr 
+  when: (cluster_info.rc is defined and cluster_info.rc != 0) or not (postgres_data_directory+"/PG_VERSION") is exists
