@@ -15,6 +15,10 @@
     - postgres_replication.archive_dest is defined
 
 - block:
+  - name: stop the cluster
+    command: 'pg_ctlclutster {{ postgres_version }} main stop'
+    register: stop_cluster
+    failed_when: stop_cluster.rc not in [0, 2]
   - name: purge db data directory
     file: name='{{ postgres_data_directory }}/' state=absent
   - name: recreate db data directory
