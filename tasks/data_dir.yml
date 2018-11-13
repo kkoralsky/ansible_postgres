@@ -28,3 +28,11 @@
     - initdb.rc != 0
     - not 'exists but is not empty' in initdb.stderr 
   when: (cluster_info.rc is defined and cluster_info.rc != 0) or not (postgres_data_directory+"/PG_VERSION") is exists
+
+- name: create local wal archive
+  file: name='{{ postgres_replication.archive_dest }}' recurse=yes
+        state=directory owner=postgres group=postgres
+  when:
+    - postgres_replication
+    - postgres_replication.archive_dest is defined
+    - postgres_replication.archive_dest_local is defined

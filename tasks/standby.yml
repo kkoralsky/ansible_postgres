@@ -13,6 +13,7 @@
   when:
     - postgres_replication
     - postgres_replication.archive_dest is defined
+    - postgres_replication.archive_dest_local|default(False)|bool
 
 - block:
   - name: stop the cluster
@@ -23,20 +24,33 @@
     file: name='{{ postgres_data_directory }}/' state=absent
   - name: recreate db data directory
     file: name='{{ postgres_data_directory }}' state=directory
-          owner=postgres group=postgres
-  - name: launch pg_basebackup to catch up from master
-    shell: | 
-      su -c '{% if postgres_basebackup_spawn|bool %}nohup {% endif %}/usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup \
-      -D{{ postgres_data_directory }} -Ureplication -h{{ postgres_replication.primary_host }} --verbose \
-        {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %} \
-        > ~/basebackup.log 2> ~/basebackup.log {% if postgres_basebackup_spawn|bool %} &{% endif %}' postgres
-    environment: {PGPASSWORD: '{{ postgres_replication.password|default("") }}'}
-    register: pg_basebackup
-    notify: restart dbserver
-    ignore_errors: yes
+          owner=postgres group=postgres mode=0700
+  - block:
+    - name: configure recovery spawn
+      template: src=recovery.conf.j2 dest=/var/lib/postgresql/recovery.conf
+                owner=postgres group=postgres
+    - name: spawn pg_basebackup and start recovery afterwards
+      shell: |
+        su -c '(/usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup \
+          -D{{ postgres_data_directory }} -Ureplication -h{{ postgres_replication.primary_host }} --verbose \ 
+          {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %} \
+          >> ~/basebackup.log 2>> ~/basebackup.log && mv /var/lib/postgresql/recovery.conf {{ postgres_data_directory }} && \
+          pg_ctlcluster {{ postgres_version }} main start >~/basebackup.log 2>~/basebackup.log) &' postgres
+      environment: {PGPASSWORD: '{{ postgres_replication.password|default("") }}'}
+    when: postgres_basebackup_spawn|bool
+  - block: 
+    - name: launch pg_basebackup to catch up from master
+      shell: | 
+        su -c '{% if postgres_basebackup_spawn|bool %}nohup {% endif %}/usr/lib/postgresql/{{ postgres_version }}/bin/pg_basebackup \
+          -D{{ postgres_data_directory }} -Ureplication -h{{ postgres_replication.primary_host }} --verbose \
+          {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %} \
+          > ~/basebackup.log 2> ~/basebackup.log {% if postgres_basebackup_spawn|bool %} &{% endif %}' postgres
+      environment: {PGPASSWORD: '{{ postgres_replication.password|default("") }}'}
+    - name: configure recovery
+      template: src=recovery.conf.j2 dest='{{ postgres_data_directory }}/recovery.conf'
+                owner=postgres group=postgres
+      notify: restart dbserver
+    - name: run postgres server
+      service: name=postgresql state=started
+    when: not postgres_basebackup_spawn|bool
   when: postgres_basebackup|bool
-
-- name: configure recovery
-  template: src=recovery.conf.j2 dest='{{ postgres_data_directory }}/recovery.conf'
-            owner=postgres group=postgres
-  notify: restart dbserver
