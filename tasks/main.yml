@@ -22,9 +22,7 @@
 
 - import_tasks: data_dir.yml
   tags: [postgres_datadir]
-  when:
-    - postgres_data_dir|bool
-    - not postgres_standby|bool
+  when: not postgres_standby|bool
 
 - import_tasks: standby.yml
   tags: postgres_standby
