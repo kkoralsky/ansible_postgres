@@ -47,6 +47,7 @@ Role Variables
     - `hot_standby` - allow readonly queries on standby  
     - `archive_dest` - destination of the archive on the standby server;
       if not defined, `streaming` key should be defined
+    - `archive_dest_local` - above destination is on master
     - `password` - password for replication user; if not defined - no authentication is required
     - `sleep` - sleep time for `pg_standby` (default: 5)
 - `postgres_dump_dest` - directory where to put dumps ready to load to database
