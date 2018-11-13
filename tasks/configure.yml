@@ -1,12 +1,12 @@
 ---
 - name: ensure that config dir is created
-  file: path='/etc/postgresql/{{ postgres_version }}/main'
+  file: path='/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}'
         state=directory mode='u=rwx,g=rx,o=rx' owner=postgres group=postgres
 
 - name: configure postgres
   template:
     src: '{{ item }}'
-    dest: '/etc/postgresql/{{ postgres_version }}/main/{{ item|replace(".j2", "") }}'
+    dest: '/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}/{{ item|replace(".j2", "") }}'
     mode: 0640
     owner: postgres
     group: postgres

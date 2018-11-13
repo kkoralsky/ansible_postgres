@@ -1,9 +1,13 @@
+- name: purge current data directory
+  file: name='{{ postgres_data_directory }}' state=absent
+  when: postgres_purge|bool
+
 - name: ensure data directory is present
   file: name='{{ postgres_data_directory }}' state=directory recurse=yes
-        owner=postgres group=postgres
+        owner=postgres group=postgres mode=0700
 
 - name: check if cluster already exists in different dir
-  command: 'pg_lsclusters -h {{ postgres_version }} main'
+  command: 'pg_lsclusters -h {{ postgres_version }} {{ postgres_cluster_name }}'
   register: cluster_info
   changed_when: false
   ignore_errors: yes

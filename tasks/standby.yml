@@ -17,11 +17,11 @@
 
 - block:
   - name: stop the cluster
-    command: 'pg_ctlclutster {{ postgres_version }} main stop'
+    command: 'pg_ctlclutster {{ postgres_version }} {{ postgres_cluster_name }} stop'
     register: stop_cluster
     failed_when: stop_cluster.rc not in [0, 2]
   - name: purge db data directory
-    file: name='{{ postgres_data_directory }}/' state=absent
+    file: name='{{ postgres_data_directory }}' state=absent
   - name: recreate db data directory
     file: name='{{ postgres_data_directory }}' state=directory
           owner=postgres group=postgres mode=0700
@@ -35,7 +35,7 @@
           -D{{ postgres_data_directory }} -Ureplication -h{{ postgres_replication.primary_host }} --verbose \ 
           {% if postgres_replication.primary_port is defined %}-p{{ postgres_replication.primary_port }}{% endif %} \
           >> ~/basebackup.log 2>> ~/basebackup.log && mv /var/lib/postgresql/recovery.conf {{ postgres_data_directory }} && \
-          pg_ctlcluster {{ postgres_version }} main start >~/basebackup.log 2>~/basebackup.log) &' postgres
+          pg_ctlcluster {{ postgres_version }} {{ postgres_cluster_name }} start >~/basebackup.log 2>~/basebackup.log) &' postgres
       environment: {PGPASSWORD: '{{ postgres_replication.password|default("") }}'}
     when: postgres_basebackup_spawn|bool
   - block: 

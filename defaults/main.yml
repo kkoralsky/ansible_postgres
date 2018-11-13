@@ -30,9 +30,11 @@ postgres_install: yes
 postgres_install_os: no  # use PGDG distribtuion instead
 postgres_configure: yes
 
-postgres_data_directory: '/var/lib/postgresql/{{ postgres_version }}/main'
+postgres_cluster_name: main
+postgres_data_directory: '/var/lib/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}'
 postgres_max_connections: 100
 
+postgres_purge: no
 postgres_replication: no
 postgres_standby: no
 postgres_basebackup: no

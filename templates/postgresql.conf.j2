@@ -41,13 +41,13 @@
 
 data_directory = '{{ postgres_data_directory }}'
 					# (change requires restart)
-hba_file = '/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf'	# host-based authentication file
+hba_file = '/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}/pg_hba.conf'	# host-based authentication file
 					# (change requires restart)
-ident_file = '/etc/postgresql/{{ postgres_version }}/main/pg_ident.conf'	# ident configuration file
+ident_file = '/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}/pg_ident.conf'	# ident configuration file
 					# (change requires restart)
 
 # If external_pid_file is not explicitly set, no extra PID file is written.
-external_pid_file = '/var/run/postgresql/{{ postgres_version }}-main.pid'			# write an extra PID file
+external_pid_file = '/var/run/postgresql/{{ postgres_version }}-{{ postgres_cluster_name }}.pid'			# write an extra PID file
 					# (change requires restart)
 
 
@@ -479,7 +479,7 @@ log_timezone = 'Poland'
 #track_functions = none			# none, pl, all
 #track_activity_query_size = 1024	# (change requires restart)
 #update_process_title = on
-stats_temp_directory = '/var/run/postgresql/{{ postgres_version }}-main.pg_stat_tmp'
+stats_temp_directory = '/var/run/postgresql/{{ postgres_version }}-{{ postgres_cluster_name }}.pg_stat_tmp'
 
 
 # - Statistics Monitoring -
