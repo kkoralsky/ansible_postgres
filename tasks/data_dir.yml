@@ -4,6 +4,9 @@
 
 - name: ensure data directory is present
   file: name='{{ postgres_data_directory }}' state=directory recurse=yes
+
+- name: set data directory permissions
+  file: name='{{ postgres_data_directory }}' state=directory
         owner=postgres group=postgres mode=0700
 
 - name: check if cluster already exists in different dir
