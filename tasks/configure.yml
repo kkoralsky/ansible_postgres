@@ -3,7 +3,15 @@
   file: path='/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}'
         state=directory mode='u=rwx,g=rx,o=rx' owner=postgres group=postgres
 
-- name: configure postgres
+- name: configure main postgres file
+  template:
+    src: postgresql.conf.j2
+    dest: '/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}/postgresql.conf'
+    mode: 0644
+    owner: postgres
+    group: postgres
+
+- name: configure postgres confidential files
   template:
     src: '{{ item }}'
     dest: '/etc/postgresql/{{ postgres_version }}/{{ postgres_cluster_name }}/{{ item|replace(".j2", "") }}'
@@ -11,7 +19,6 @@
     owner: postgres
     group: postgres
   with_items:
-    - postgresql.conf.j2
     - pg_hba.conf.j2
     - pg_ident.conf.j2
   notify: restart dbserver
