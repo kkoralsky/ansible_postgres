@@ -10,6 +10,7 @@
     mode: 0644
     owner: postgres
     group: postgres
+  notify: restart dbserver
 
 - name: configure postgres confidential files
   template:
